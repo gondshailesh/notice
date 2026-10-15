@@ -85,14 +85,10 @@
       <ul class="navbar-nav ms-auto align-items-center">
 
       @guest
+        
         <li class="nav-item">
-          <a class="btn btn-sm btn-outline-light me-2 px-3" href="{{ route('login') }}">
-            <i class="bi bi-box-arrow-in-right me-1"></i>Login
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-sm btn-warning text-dark fw-bold px-3" href="{{ route('register') }}">
-            <i class="bi bi-person-plus-fill me-1"></i>Register
+          <a href="{{ route('admin.login') }}" class="btn btn-warning btn-sm ms-2">
+        <i class="bi bi-shield-lock me-1"></i> Admin Login
           </a>
         </li>
       @else

@@ -12,15 +12,15 @@
         and everything happening at School of Computational Science — in one place.
       </p>
       <div class="d-flex gap-3 flex-wrap">
-        <a href="{{ route('login') }}" class="btn btn-primary px-4 py-2 shadow-sm">
-          <i class="bi bi-box-arrow-in-right me-1"></i> Login
+        <a href="{{ route('admin.login') }}" class="btn btn-primary px-4 py-2 shadow-sm">
+          <i class="bi bi-shield-lock me-1"></i> Admin Login
         </a>
         <a href="{{ route('register') }}" class="btn btn-outline-primary px-4 py-2">
           <i class="bi bi-person-plus me-1"></i> Register
         </a>
-        <a href="{{ route('admin.login') }}" class="btn btn-outline-danger px-4 py-2">
-  <i class="bi bi-shield-lock me-1"></i> Admin Login
-</a>
+        <a href="{{ route('login') }}" class="btn btn-outline-danger px-4 py-2">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Login
+        </a>
         <a href="{{ route('home') }}" class="btn btn-outline-secondary px-4 py-2">
           <i class="bi bi-megaphone me-1"></i> View Notices
         </a>
