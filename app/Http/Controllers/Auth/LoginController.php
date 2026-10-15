@@ -55,4 +55,29 @@ class LoginController extends Controller
     {
         return redirect()->route('welcome');
     }
+
+    public function showAdminLoginForm()
+    {
+        return view('auth.admin-login');
+    }
+
+    public function adminLogin(Request $request)
+    {
+        $this->validateLogin($request);
+
+        if ($this->attemptLogin($request)) {
+            $user = Auth::user();
+
+            if (!$user->isAdmin()) {
+                Auth::logout();
+                return back()->withErrors([
+                    'login' => 'This login is for administrators only.',
+                ])->withInput($request->only('login', 'remember'));
+            }
+
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        return $this->sendFailedLoginResponse($request);
+    }
 }

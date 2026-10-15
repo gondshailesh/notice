@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\NoticeController;
 use App\Http\Controllers\StudentDashboardController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\NoticeController as AdminNoticeController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 
@@ -17,14 +18,25 @@ Route::get('/', fn() => view('welcome'))->name('welcome');
 
 /*
 |--------------------------------------------------------------------------
-| Auth
+| Custom Admin Login (before Auth::routes so /admin/login is registered)
+|--------------------------------------------------------------------------
+*/
+Route::get('/admin/login', [LoginController::class, 'showAdminLoginForm'])
+    ->name('admin.login');
+
+Route::post('/admin/login', [LoginController::class, 'adminLogin'])
+    ->name('admin.login.submit');
+
+/*
+|--------------------------------------------------------------------------
+| Auth (login, register, forgot password, verify email)
 |--------------------------------------------------------------------------
 */
 Auth::routes(['verify' => true]);
 
 /*
 |--------------------------------------------------------------------------
-| Notice board (any verified user)
+| Notice board — any verified user
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth','verified'])->group(function () {
