@@ -18,29 +18,34 @@ Route::get('/', fn() => view('welcome'))->name('welcome');
 
 /*
 |--------------------------------------------------------------------------
-| Custom Admin Login (before Auth::routes so /admin/login is registered)
+| Custom Admin Login
 |--------------------------------------------------------------------------
 */
 Route::get('/admin/login', [LoginController::class, 'showAdminLoginForm'])
     ->name('admin.login');
-
 Route::post('/admin/login', [LoginController::class, 'adminLogin'])
     ->name('admin.login.submit');
 
 /*
 |--------------------------------------------------------------------------
-| Auth (login, register, forgot password, verify email)
+| Auth routes
 |--------------------------------------------------------------------------
 */
 Auth::routes(['verify' => true]);
 
 /*
 |--------------------------------------------------------------------------
-| Notice board — any verified user
+| Notice board — verified users
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth','verified'])->group(function () {
+
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+    // ✅ NEW: View notice detail page
+    Route::get('/notices/{notice}', [NoticeController::class, 'show'])
+        ->name('notices.show');
+
     Route::get('/notices/{notice}/download', [NoticeController::class, 'download'])
         ->name('notices.download');
 });
@@ -64,11 +69,12 @@ Route::prefix('admin')->name('admin.')
     ->middleware(['auth','verified','admin'])
     ->group(function () {
 
-        // Dashboard
         Route::get('/dashboard', [AdminNoticeController::class, 'dashboard'])
             ->name('dashboard');
 
-        // Notices CRUD
+        Route::get('/notices', [AdminNoticeController::class, 'index'])
+            ->name('notices.index');
+
         Route::get('/notices/create', [AdminNoticeController::class, 'create'])
             ->name('notices.create');
         Route::post('/notices', [AdminNoticeController::class, 'store'])
@@ -80,7 +86,6 @@ Route::prefix('admin')->name('admin.')
         Route::delete('/notices/{notice}', [AdminNoticeController::class, 'destroy'])
             ->name('notices.destroy');
 
-        // Users
         Route::get('/users', [AdminUserController::class, 'index'])
             ->name('users.index');
         Route::patch('/users/{user}/toggle-role', [AdminUserController::class, 'toggleRole'])

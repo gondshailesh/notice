@@ -7,67 +7,72 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth','verified']);
-    }
-
+    /**
+     * Notice Board — visible to any verified user after login.
+     */
     public function index(Request $request)
     {
-        // Base query
-        $query = Notice::query()->latest();
-
-        // ---- Category filter (array of selected categories) ----
-        $selectedCategories = (array) $request->input('categories', []);
-        if (!empty($selectedCategories)) {
-            $query->whereIn('category', $selectedCategories);
+        /* ─── Per-page selector ─── */
+        if ($request->filled('per_page')) {
+            session(['home_per_page' => (int) $request->per_page]);
         }
 
-        // ---- Search filter (title + description) ----
-        if ($request->filled('q')) {
-            $q = trim($request->q);
-            $query->where(function ($b) use ($q) {
-                $b->where('title', 'like', "%{$q}%")
-                  ->orWhere('description', 'like', "%{$q}%");
+        $perPage = (int) session('home_per_page', 10);
+        if (! in_array($perPage, [10, 25, 50, 100], true)) {
+            $perPage = 10;
+        }
+
+        /* ─── Base query: only active notices ─── */
+        $query = Notice::where('is_active', true)->latest('published_at');
+
+        /* ─── Search ─── */
+        if ($request->filled('search')) {
+            $s = $request->search;
+            $query->where(function ($w) use ($s) {
+                $w->where('title', 'like', "%{$s}%")
+                  ->orWhere('description', 'like', "%{$s}%");
             });
         }
 
-        // ---- Priority filter ----
-        if ($request->filled('priority')) {
-            $query->where('priority', $request->priority);
+        /* ─── Category ─── */
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
         }
 
-        // ---- Date range filter ----
-        if ($request->filled('from')) {
-            $query->whereDate('created_at', '>=', $request->from);
+        /* ─── Date range ─── */
+        if ($request->filled('date_from')) {
+            $query->whereDate('published_at', '>=', $request->date_from);
         }
-        if ($request->filled('to')) {
-            $query->whereDate('created_at', '<=', $request->to);
+        if ($request->filled('date_to')) {
+            $query->whereDate('published_at', '<=', $request->date_to);
         }
 
-        // ---- Get filtered results ----
-        $filtered = (clone $query)->get();
+        $notices = $query->paginate($perPage)->withQueryString();
 
-        // ---- Banner = latest must_read OR latest urgent OR latest overall ----
-        $banner = $filtered->firstWhere('category', 'must_read')
-                ?? $filtered->firstWhere('priority', 'Urgent')
-                ?? $filtered->first();
+        /* ─── Hero: newest must_read / urgent ─── */
+        $hero = Notice::where('is_active', true)
+            ->whereIn('category', ['must_read', 'urgent'])
+            ->latest('published_at')
+            ->first()
+            ?? Notice::where('is_active', true)
+                ->latest('published_at')
+                ->first();
 
-        // ---- Top 3 featured cards (excluding banner) ----
-        $topCards = $filtered->where('id', '!=', optional($banner)->id)->take(3);
-
-        // ---- Paginated list (10 per page, keeps query string) ----
-        $notices = $query->paginate(10)->withQueryString();
-
-        // ---- Active filter summary (for UI) ----
-        $activeFilters = [
-            'categories' => $selectedCategories,
-            'q'          => $request->q,
-            'priority'   => $request->priority,
-            'from'       => $request->from,
-            'to'         => $request->to,
+        /* ─── Small stats ─── */
+        $stats = [
+            'total'     => Notice::where('is_active', true)->count(),
+            'this_week' => Notice::where('is_active', true)
+                ->whereBetween('published_at', [now()->startOfWeek(), now()->endOfWeek()])
+                ->count(),
+            'urgent'    => Notice::where('is_active', true)->where('priority', 'Urgent')->count(),
+            'must_read' => Notice::where('is_active', true)->where('category', 'must_read')->count(),
         ];
 
-        return view('home', compact('banner','topCards','notices','activeFilters'));
+        return view('home', [
+            'notices'     => $notices,
+            'hero'        => $hero,
+            'stats'       => $stats,
+            'categoryMap' => Notice::categories(),
+        ]);
     }
 }

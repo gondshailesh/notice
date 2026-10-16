@@ -3,58 +3,55 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
+    /**
+     * Where to redirect after normal user login.
+     */
+    protected string $redirectTo = '/home';
 
-    protected $redirectTo = '/home';
+    /**
+     * Where to redirect after admin login.
+     */
+    protected string $adminRedirectTo = '/admin/dashboard';
 
-    public function __construct()
+    /* ════════════════════════════════════════════════════════
+       STUDENT LOGIN
+       ════════════════════════════════════════════════════════ */
+
+    public function showLoginForm()
     {
-        $this->middleware('guest')->except('logout');
+        return view('auth.login');
     }
 
-    public function username()
+    public function login(Request $request)
     {
-        return 'login';
-    }
-
-    protected function credentials(Request $request)
-    {
-        $field = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        return [$field => $request->login, 'password' => $request->password];
-    }
-
-    protected function validateLogin(Request $request)
-    {
-        $request->validate([
+        $creds = $request->validate([
             'login'    => 'required|string',
             'password' => 'required|string',
         ]);
-    }
 
-    /**
-     * After login: admin → /admin/dashboard, student → /dashboard
-     */
-    protected function redirectTo()
-    {
-        if (Auth::user()->isAdmin()) {
-            return '/admin/dashboard';
+        $field = filter_var($creds['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (Auth::attempt([$field => $creds['login'], 'password' => $creds['password']], $request->boolean('remember'))) {
+            $request->session()->regenerate();
+
+            /* ✅ Redirect everyone to the notice board */
+            return redirect()->intended($this->redirectTo)
+                ->with('success', 'Welcome back, ' . Auth::user()->name . '!');
         }
-        return '/dashboard';
+
+        return back()
+            ->withErrors(['login' => 'Invalid credentials.'])
+            ->onlyInput('login');
     }
 
-    /**
-     * After logout: go to welcome page.
-     */
-    protected function loggedOut(Request $request)
-    {
-        return redirect()->route('welcome');
-    }
+    /* ════════════════════════════════════════════════════════
+       ADMIN LOGIN
+       ════════════════════════════════════════════════════════ */
 
     public function showAdminLoginForm()
     {
@@ -63,21 +60,44 @@ class LoginController extends Controller
 
     public function adminLogin(Request $request)
     {
-        $this->validateLogin($request);
+        $creds = $request->validate([
+            'login'    => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-        if ($this->attemptLogin($request)) {
-            $user = Auth::user();
+        $field = filter_var($creds['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-            if (!$user->isAdmin()) {
+        if (Auth::attempt([$field => $creds['login'], 'password' => $creds['password']], $request->boolean('remember'))) {
+
+            /* ── Only allow admins here ── */
+            if (Auth::user()->role != 1) {
                 Auth::logout();
-                return back()->withErrors([
-                    'login' => 'This login is for administrators only.',
-                ])->withInput($request->only('login', 'remember'));
+                return back()
+                    ->withErrors(['login' => 'Not an admin account. Use the student login.'])
+                    ->onlyInput('login');
             }
 
-            return redirect()->intended(route('admin.dashboard'));
+            $request->session()->regenerate();
+
+            return redirect()->intended($this->adminRedirectTo)
+                ->with('success', 'Welcome, Admin!');
         }
 
-        return $this->sendFailedLoginResponse($request);
+        return back()
+            ->withErrors(['login' => 'Invalid admin credentials.'])
+            ->onlyInput('login');
+    }
+
+    /* ════════════════════════════════════════════════════════
+       LOGOUT
+       ════════════════════════════════════════════════════════ */
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Logged out successfully.');
     }
 }
