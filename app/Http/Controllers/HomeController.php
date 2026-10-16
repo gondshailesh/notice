@@ -39,6 +39,11 @@ class HomeController extends Controller
             $query->where('category', $request->category);
         }
 
+        /* ─── ✅ Priority (NEW) ─── */
+        if ($request->filled('priority')) {
+            $query->where('priority', $request->priority);
+        }
+
         /* ─── Date range ─── */
         if ($request->filled('date_from')) {
             $query->whereDate('published_at', '>=', $request->date_from);

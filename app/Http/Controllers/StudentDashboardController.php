@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Notice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class StudentDashboardController extends Controller
 {
@@ -74,12 +75,55 @@ class StudentDashboardController extends Controller
             ->take(5)
             ->get();
 
+        /* ─── Latest notices (for the right column in the view) ─── */
+        $latestNotices = Notice::with('author')
+            ->where('is_active', true)
+            ->latest('published_at')
+            ->take(5)
+            ->get();
+
         return view('dashboard', [
             'user'          => $user,
             'stats'         => $stats,
             'urgentNotices' => $urgentNotices,
-            'notices'       => $notices,
+            'latestNotices' => $latestNotices,   // ← used by the view
+            'notices'       => $notices,          // ← paginated (if needed)
             'categoryMap'   => Notice::categories(),
         ]);
+    }
+
+    /**
+     * Update the authenticated student's profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $validated = $request->validate([
+            'name'                => ['required', 'string', 'max:100'],
+            'phone'               => ['required', 'digits:10'],
+            'course'              => ['required', 'string', 'max:100'],
+            'dob'                 => ['required', 'date', 'before:-15 years'],
+            'college_internet_id' => ['nullable', 'string', 'max:50'],
+            'password'            => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        /* ─── Update basic fields ─── */
+        $user->name                = $validated['name'];
+        $user->phone               = $validated['phone'];
+        $user->course              = $validated['course'];
+        $user->dob                 = $validated['dob'];
+        $user->college_internet_id = $validated['college_internet_id'] ?? null;
+
+        /* ─── Update password only if provided ─── */
+        if (! empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Profile updated successfully! ✅');
     }
 }

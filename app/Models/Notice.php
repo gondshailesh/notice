@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Notifications\NoticePosted;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -63,7 +66,6 @@ class Notice extends Model
 
     /**
      * Alias for categories() — supports older code using Notice::CATEGORIES.
-     * Usage: Notice::CATEGORIES['academic'] → "Academic Notices"
      */
     public const CATEGORIES = [
         'academic'       => 'Academic Notices',
@@ -94,5 +96,31 @@ class Notice extends Model
     public function scopeUrgent($query)
     {
         return $query->where('priority', 'Urgent');
+    }
+
+    /**
+     * Send Telegram notification on notice create/update.
+     */
+    protected static function booted()
+    {
+        static::created(function ($notice) {
+            try {
+                Notification::route('telegram', config('services.telegram.chat_id'))
+                    ->notify(new NoticePosted($notice->id));
+            } catch (\Exception $e) {
+                Log::error('Telegram notice failed (created): ' . $e->getMessage());
+            }
+        });
+
+        static::updated(function ($notice) {
+            if ($notice->isDirty(['title', 'description', 'priority'])) {
+                try {
+                    Notification::route('telegram', config('services.telegram.chat_id'))
+                        ->notify(new NoticePosted($notice->id));
+                } catch (\Exception $e) {
+                    Log::error('Telegram notice failed (updated): ' . $e->getMessage());
+                }
+            }
+        });
     }
 }

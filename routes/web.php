@@ -58,6 +58,10 @@ Route::middleware(['auth','verified'])->group(function () {
 Route::middleware(['auth','verified','student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])
         ->name('dashboard');
+            // ═══ NEW: Update profile ═══
+    Route::put('/profile', [StudentDashboardController::class, 'updateProfile'])
+        ->name('student.profile.update');
+
 });
 
 /*

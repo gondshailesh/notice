@@ -5,34 +5,40 @@
 
 {{-- ============ HERO ============ --}}
 <div class="container-fluid px-lg-5 pt-4">
-  <div class="card border-0 shadow-sm text-white position-relative overflow-hidden"
-       style="border-radius:24px;background:linear-gradient(135deg,#4f46e5 0%,#4338ca 50%,#3730a3 100%);">
+  <div class="card border-0 shadow-sm text-white position-relative overflow-hidden hero-animated"
+       style="border-radius:24px;background:linear-gradient(135deg,#4f46e5 0%,#4338ca 50%,#3730a3 100%);background-size:200% 200%;">
     <div class="card-body p-4 p-lg-5 position-relative">
       <div class="row align-items-center">
         <div class="col-lg-8">
-          <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-2 mb-3">
+          <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-2 mb-3 animate-fade-in"
+                style="animation-delay:0.1s;">
             <i class="bi bi-shield-lock-fill me-1" aria-hidden="true"></i>ADMIN CONTROL PANEL
           </span>
-          <h2 class="fw-bold mb-2">Welcome back, {{ explode(' ', Auth::user()->name)[0] }} 🛡️</h2>
-          <p class="opacity-75 mb-4">
+          <h2 class="fw-bold mb-2 animate-slide-up" style="animation-delay:0.2s;">
+            Welcome back, {{ explode(' ', Auth::user()->name)[0] }} 🛡️
+          </h2>
+          <p class="opacity-75 mb-4 animate-slide-up" style="animation-delay:0.3s;">
             Manage notices, users, and content across the School of Computational Science portal.
           </p>
-          <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('admin.notices.create') }}" class="btn btn-warning fw-bold px-4 rounded-pill">
+          <div class="d-flex gap-2 flex-wrap animate-slide-up" style="animation-delay:0.4s;">
+            <a href="{{ route('admin.notices.create') }}" class="btn btn-warning fw-bold px-4 rounded-pill btn-pulse">
               <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Post Notice
             </a>
-            <a href="{{ route('home') }}" class="btn btn-outline-light px-4 rounded-pill">
+            <a href="{{ route('home') }}" class="btn btn-outline-light px-4 rounded-pill btn-glow">
               <i class="bi bi-eye me-1" aria-hidden="true"></i>Preview Board
             </a>
           </div>
         </div>
         <div class="col-lg-4 d-none d-lg-flex justify-content-end">
-          <i class="bi bi-speedometer2" style="font-size:9rem;opacity:.15;" aria-hidden="true"></i>
+          <i class="bi bi-speedometer2 animate-rotate-slow"
+             style="font-size:9rem;opacity:.15;" aria-hidden="true"></i>
         </div>
       </div>
     </div>
-    <div class="position-absolute rounded-circle bg-white bg-opacity-10"
+    <div class="position-absolute rounded-circle bg-white bg-opacity-10 hero-orb"
          style="width:220px;height:220px;bottom:-100px;right:-60px;"></div>
+    <div class="position-absolute rounded-circle bg-white bg-opacity-10 hero-orb"
+         style="width:120px;height:120px;top:-40px;left:40%;animation-delay:1s;"></div>
   </div>
 </div>
 
@@ -40,7 +46,7 @@
 <div class="container-fluid px-lg-5 py-4">
   <div class="row g-3 mb-4">
 
-    <div class="col-6 col-lg-3">
+    <div class="col-6 col-lg-3 reveal" data-delay="0">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
@@ -52,12 +58,13 @@
             </span>
           </div>
           <div class="text-muted small text-uppercase fw-semibold mb-1">Total Notices</div>
-          <h2 class="fw-bold mb-0">{{ $stats['total_notices'] ?? 0 }}</h2>
+          <h2 class="fw-bold mb-0 counter"
+              data-target="{{ $stats['total_notices'] ?? 0 }}">0</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-6 col-lg-3">
+    <div class="col-6 col-lg-3 reveal" data-delay="100">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
@@ -69,16 +76,17 @@
             </span>
           </div>
           <div class="text-muted small text-uppercase fw-semibold mb-1">Total Users</div>
-          <h2 class="fw-bold mb-0">{{ $stats['total_users'] ?? 0 }}</h2>
+          <h2 class="fw-bold mb-0 counter"
+              data-target="{{ $stats['total_users'] ?? 0 }}">0</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-6 col-lg-3">
+    <div class="col-6 col-lg-3 reveal" data-delay="200">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-box bg-danger-subtle text-danger">
+            <div class="icon-box bg-danger-subtle text-danger icon-pulse">
               <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
             </div>
             <span class="badge bg-danger-subtle text-danger rounded-pill small">
@@ -86,12 +94,13 @@
             </span>
           </div>
           <div class="text-muted small text-uppercase fw-semibold mb-1">Urgent</div>
-          <h2 class="fw-bold mb-0 text-danger">{{ $stats['urgent'] ?? 0 }}</h2>
+          <h2 class="fw-bold mb-0 text-danger counter"
+              data-target="{{ $stats['urgent'] ?? 0 }}">0</h2>
         </div>
       </div>
     </div>
 
-    <div class="col-6 col-lg-3">
+    <div class="col-6 col-lg-3 reveal" data-delay="300">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
@@ -103,7 +112,8 @@
             </span>
           </div>
           <div class="text-muted small text-uppercase fw-semibold mb-1">This Week</div>
-          <h2 class="fw-bold mb-0 text-warning-emphasis">{{ $stats['this_week'] ?? 0 }}</h2>
+          <h2 class="fw-bold mb-0 text-warning-emphasis counter"
+              data-target="{{ $stats['this_week'] ?? 0 }}">0</h2>
         </div>
       </div>
     </div>
@@ -111,16 +121,16 @@
   </div>
 
   {{-- ============ QUICK ACTIONS ============ --}}
-  <h6 class="fw-bold text-dark mb-3">
-    <i class="bi bi-lightning-charge-fill text-warning me-2" aria-hidden="true"></i>Quick Actions
+  <h6 class="fw-bold text-dark mb-3 reveal" data-delay="0">
+    <i class="bi bi-lightning-charge-fill text-warning me-2 icon-zap" aria-hidden="true"></i>Quick Actions
   </h6>
   <div class="row g-3 mb-4">
 
-    <div class="col-md-6 col-lg-3">
+    <div class="col-md-6 col-lg-3 reveal" data-delay="0">
       <a href="{{ route('admin.notices.create') }}" class="text-decoration-none">
         <div class="card border-0 shadow-sm action-card h-100">
           <div class="card-body d-flex align-items-center">
-            <div class="action-icon bg-primary text-white">
+            <div class="action-icon bg-primary text-white action-icon-hover">
               <i class="bi bi-plus-lg" aria-hidden="true"></i>
             </div>
             <div class="ms-3">
@@ -132,11 +142,11 @@
       </a>
     </div>
 
-    <div class="col-md-6 col-lg-3">
+    <div class="col-md-6 col-lg-3 reveal" data-delay="100">
       <a href="{{ route('home') }}" class="text-decoration-none">
         <div class="card border-0 shadow-sm action-card h-100">
           <div class="card-body d-flex align-items-center">
-            <div class="action-icon bg-success text-white">
+            <div class="action-icon bg-success text-white action-icon-hover">
               <i class="bi bi-eye-fill" aria-hidden="true"></i>
             </div>
             <div class="ms-3">
@@ -148,11 +158,11 @@
       </a>
     </div>
 
-    <div class="col-md-6 col-lg-3">
+    <div class="col-md-6 col-lg-3 reveal" data-delay="200">
       <a href="{{ route('admin.users.index') }}" class="text-decoration-none">
         <div class="card border-0 shadow-sm action-card h-100">
           <div class="card-body d-flex align-items-center">
-            <div class="action-icon bg-warning text-dark">
+            <div class="action-icon bg-warning text-dark action-icon-hover">
               <i class="bi bi-people-fill" aria-hidden="true"></i>
             </div>
             <div class="ms-3">
@@ -164,11 +174,11 @@
       </a>
     </div>
 
-    <div class="col-md-6 col-lg-3">
+    <div class="col-md-6 col-lg-3 reveal" data-delay="300">
       <a href="{{ route('admin.notices.index', ['priority' => 'Urgent']) }}" class="text-decoration-none">
         <div class="card border-0 shadow-sm action-card h-100">
           <div class="card-body d-flex align-items-center">
-            <div class="action-icon bg-danger text-white">
+            <div class="action-icon bg-danger text-white action-icon-hover">
               <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
             </div>
             <div class="ms-3">
@@ -183,10 +193,10 @@
   </div>
 
   {{-- ============ RECENT NOTICES TABLE ============ --}}
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden reveal" data-delay="0">
 
     {{-- ═══════════ CARD HEADER with DATE FILTER ═══════════ --}}
-    <div class="card-header bg-white border-0 pt-4 pb-3 px-4">
+    <div class="card-header bg-white border-0 pt-4 pb-3 px-4 reveal" data-delay="100">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
         <h6 class="fw-bold mb-0">
           <i class="bi bi-list-ul me-2 text-primary" aria-hidden="true"></i>All Notices
@@ -195,7 +205,7 @@
           <span class="badge bg-light text-secondary rounded-pill px-3 py-2">
             {{ $notices->total() }} total
           </span>
-          <a href="{{ route('admin.notices.create') }}" class="btn btn-sm btn-primary rounded-pill px-3">
+          <a href="{{ route('admin.notices.create') }}" class="btn btn-sm btn-primary rounded-pill px-3 btn-hover-lift">
             <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>New
           </a>
         </div>
@@ -204,7 +214,6 @@
       {{-- SEARCH + CATEGORY + DATE FILTER --}}
       <form method="GET" action="{{ route('admin.dashboard') }}" id="filterForm">
 
-        {{-- preserve per_page --}}
         <input type="hidden" name="per_page" value="{{ session('admin_per_page', 10) }}">
 
         {{-- ROW 1: Search / Category / Actions --}}
@@ -216,7 +225,7 @@
               </span>
               <input type="text"
                      name="search"
-                     class="form-control rounded-end-pill"
+                     class="form-control rounded-end-pill input-focus-lift"
                      placeholder="Search notices by title or content..."
                      value="{{ request('search') }}"
                      aria-label="Search notices">
@@ -224,7 +233,7 @@
           </div>
 
           <div class="col-md-3">
-            <select name="category" class="form-select form-select-sm rounded-pill" aria-label="Filter by category">
+            <select name="category" class="form-select form-select-sm rounded-pill input-focus-lift" aria-label="Filter by category">
               <option value="">All Categories</option>
               @foreach(\App\Models\Notice::categories() as $key => $label)
                 <option value="{{ $key }}" @selected(request('category') === $key)>{{ $label }}</option>
@@ -233,12 +242,12 @@
           </div>
 
           <div class="col-md-3 d-flex gap-2">
-            <button type="submit" class="btn btn-sm btn-outline-primary flex-fill rounded-pill">
+            <button type="submit" class="btn btn-sm btn-outline-primary flex-fill rounded-pill btn-hover-lift">
               <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filter
             </button>
             @if(request()->hasAny(['search','category','date_from','date_to']))
               <a href="{{ route('admin.dashboard') }}"
-                 class="btn btn-sm btn-outline-secondary rounded-pill"
+                 class="btn btn-sm btn-outline-secondary rounded-pill btn-hover-lift"
                  title="Clear all filters">
                 <i class="bi bi-x-lg" aria-hidden="true"></i>
               </a>
@@ -250,14 +259,14 @@
         <div class="row g-2 align-items-center">
           <div class="col-auto">
             <span class="small text-muted fw-semibold">
-              <i class="bi bi-calendar3 me-1 text-primary"></i>Date:
+              <i class="bi bi-calendar3 me-1 text-primary" aria-hidden="true"></i>Date:
             </span>
           </div>
 
           <div class="col-md-2 col-6">
             <input type="date"
                    name="date_from"
-                   class="form-control form-control-sm rounded-pill"
+                   class="form-control form-control-sm rounded-pill input-focus-lift"
                    value="{{ request('date_from') }}"
                    max="{{ now()->toDateString() }}"
                    aria-label="From date">
@@ -268,46 +277,44 @@
           <div class="col-md-2 col-6">
             <input type="date"
                    name="date_to"
-                   class="form-control form-control-sm rounded-pill"
+                   class="form-control form-control-sm rounded-pill input-focus-lift"
                    value="{{ request('date_to') }}"
                    max="{{ now()->toDateString() }}"
                    aria-label="To date">
           </div>
 
-          {{-- QUICK PRESETS --}}
           <div class="col-md-5">
             <div class="d-flex flex-wrap gap-1">
               <a href="{{ request()->fullUrlWithQuery(['date_from' => now()->toDateString(), 'date_to' => now()->toDateString(), 'page' => null]) }}"
-                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size:.72rem;">
+                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
                 Today
               </a>
               <a href="{{ request()->fullUrlWithQuery(['date_from' => now()->subDays(6)->toDateString(), 'date_to' => now()->toDateString(), 'page' => null]) }}"
-                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size:.72rem;">
+                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
                 7d
               </a>
               <a href="{{ request()->fullUrlWithQuery(['date_from' => now()->subDays(29)->toDateString(), 'date_to' => now()->toDateString(), 'page' => null]) }}"
-                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size:.72rem;">
+                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
                 30d
               </a>
               <a href="{{ request()->fullUrlWithQuery(['date_from' => now()->startOfYear()->toDateString(), 'date_to' => now()->toDateString(), 'page' => null]) }}"
-                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size:.72rem;">
+                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
                 This Year
               </a>
               <a href="{{ request()->fullUrlWithQuery(['date_from' => now()->subYear()->startOfYear()->toDateString(), 'date_to' => now()->subYear()->endOfYear()->toDateString(), 'page' => null]) }}"
-                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size:.72rem;">
+                 class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
                 Last Year
               </a>
               <a href="{{ request()->fullUrlWithQuery(['date_from' => null, 'date_to' => null, 'page' => null]) }}"
-                 class="btn btn-sm btn-outline-danger rounded-pill py-0 px-2" style="font-size:.72rem;">
-                <i class="bi bi-x-circle me-1"></i>Clear dates
+                 class="btn btn-sm btn-outline-danger rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
+                <i class="bi bi-x-circle me-1" aria-hidden="true"></i>Clear dates
               </a>
             </div>
           </div>
         </div>
 
-        {{-- ACTIVE DATE FILTER SUMMARY --}}
         @if(request()->filled('date_from') || request()->filled('date_to'))
-          <div class="mt-2 small text-muted">
+          <div class="mt-2 small text-muted animate-fade-in">
             <i class="bi bi-info-circle me-1"></i>
             Showing notices
             @if(request()->filled('date_from'))
@@ -321,7 +328,6 @@
 
       </form>
     </div>
-    {{-- ═══════════ /CARD HEADER ═══════════ --}}
 
     <div class="card-body p-0">
       <div class="table-responsive">
@@ -341,7 +347,7 @@
               $isUrgent = strtolower($n->priority ?? '') === 'urgent';
               $categoryLabel = \App\Models\Notice::categories()[$n->category] ?? $n->category;
             @endphp
-            <tr>
+            <tr class="reveal-row" style="--row-delay:{{ $loop->index * 0.04 }}s;">
               <td class="ps-4">
                 <div class="d-flex align-items-start">
                   <div class="notice-avatar bg-{{ $isUrgent ? 'danger' : 'primary' }}-subtle
@@ -365,18 +371,18 @@
               </td>
 
               <td>
-                <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3">
+                <span class="badge bg-light text-dark border border-secondary-subtle rounded-pill px-3 badge-hover-pop">
                   {{ $categoryLabel }}
                 </span>
               </td>
 
               <td>
                 @if($isUrgent)
-                  <span class="badge bg-danger rounded-pill px-3">
+                  <span class="badge bg-danger rounded-pill px-3 badge-urgent">
                     <i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Urgent
                   </span>
                 @else
-                  <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">Normal</span>
+                  <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3 badge-hover-pop">Normal</span>
                 @endif
               </td>
 
@@ -388,21 +394,21 @@
               <td class="text-end pe-4">
                 <div class="d-flex justify-content-end gap-1">
                   <a href="{{ route('notices.show', $n->id) }}"
-                     class="btn btn-sm btn-outline-info rounded-circle"
+                     class="btn btn-sm btn-outline-info rounded-circle btn-icon-hover"
                      style="width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;"
                      title="View notice" aria-label="View notice">
                     <i class="bi bi-eye" aria-hidden="true"></i>
                   </a>
                   @if($n->attachment_path)
                     <a href="{{ route('notices.download', $n->id) }}"
-                       class="btn btn-sm btn-outline-primary rounded-circle"
+                       class="btn btn-sm btn-outline-primary rounded-circle btn-icon-hover"
                        style="width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;"
                        title="Download attachment" aria-label="Download attachment">
                       <i class="bi bi-download" aria-hidden="true"></i>
                     </a>
                   @endif
                   <a href="{{ route('admin.notices.edit', $n) }}"
-                     class="btn btn-sm btn-outline-secondary rounded-circle"
+                     class="btn btn-sm btn-outline-secondary rounded-circle btn-icon-hover"
                      style="width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;"
                      title="Edit notice" aria-label="Edit notice">
                     <i class="bi bi-pencil" aria-hidden="true"></i>
@@ -411,7 +417,7 @@
                         method="POST" class="d-inline delete-form">
                     @csrf @method('DELETE')
                     <button type="submit"
-                            class="btn btn-sm btn-outline-danger rounded-circle"
+                            class="btn btn-sm btn-outline-danger rounded-circle btn-icon-hover"
                             style="width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;"
                             title="Delete notice" aria-label="Delete notice">
                       <i class="bi bi-trash" aria-hidden="true"></i>
@@ -421,10 +427,10 @@
               </td>
             </tr>
           @empty
-            <tr>
+            <tr class="reveal-row" style="--row-delay:0s;">
               <td colspan="5" class="text-center py-5">
-                <div class="text-muted">
-                  <i class="bi bi-inbox display-4 d-block mb-3 opacity-25" aria-hidden="true"></i>
+                <div class="text-muted animate-fade-in">
+                  <i class="bi bi-inbox display-4 d-block mb-3 opacity-25 icon-float-gentle" aria-hidden="true"></i>
                   <div class="fw-semibold">No notices found</div>
                   <small>
                     @if(request()->hasAny(['search','category','date_from','date_to']))
@@ -436,7 +442,7 @@
                   </small>
                   @unless(request()->hasAny(['search','category','date_from','date_to']))
                     <div class="mt-3">
-                      <a href="{{ route('admin.notices.create') }}" class="btn btn-primary rounded-pill px-4">
+                      <a href="{{ route('admin.notices.create') }}" class="btn btn-primary rounded-pill px-4 btn-pulse">
                         <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>Post Notice
                       </a>
                     </div>
@@ -450,9 +456,8 @@
       </div>
     </div>
 
-    {{-- PAGINATION --}}
     @if($notices->total() > 0)
-      <div class="card-footer bg-white border-0 py-3 px-4">
+      <div class="card-footer bg-white border-0 py-3 px-4 reveal" data-delay="200">
         {{ $notices->links('vendor.pagination.custom') }}
       </div>
     @endif
@@ -465,45 +470,236 @@
 {{-- ============ STYLES ============ --}}
 @push('styles')
 <style>
-  /* ── Stat cards ── */
-  .stat-card { transition: transform .25s ease, box-shadow .25s ease; }
+  /* ═══════════ ENTRANCE ANIMATIONS (hero) ═══════════ */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  @keyframes orbFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-20px) scale(1.05); }
+  }
+  @keyframes pulseRing {
+    0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); }
+    70%  { box-shadow: 0 0 0 12px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+  @keyframes zapWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25%      { transform: rotate(-12deg); }
+    75%      { transform: rotate(12deg); }
+  }
+  /* ═══════════ NEW: Added keyframes ═══════════ */
+  @keyframes iconFloatGentle {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+
+  .animate-fade-in  { animation: fadeIn 0.5s ease-out both; }
+  .animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* ═══════════ HERO ═══════════ */
+  .hero-animated { animation: gradientShift 12s ease infinite; }
+  .hero-orb      { animation: orbFloat 6s ease-in-out infinite; }
+  .animate-rotate-slow { animation: rotateSlow 60s linear infinite; }
+
+  /* ═══════════ ⚡ SCROLL REVEAL ═══════════ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: calc(var(--reveal-delay, 0ms));
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Rows reveal (staggered from within the table) */
+  .reveal-row {
+    opacity: 0;
+    transform: translateX(-12px);
+    transition: opacity 0.5s ease-out,
+                transform 0.5s ease-out;
+    transition-delay: var(--row-delay, 0s);
+  }
+  tbody.is-visible .reveal-row {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Fallback if JS disabled: show everything */
+  .no-js .reveal,
+  .no-js .reveal-row {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ═══════════ STAT CARDS ═══════════ */
+  .stat-card {
+    transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow .3s ease;
+  }
   .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,.08) !important;
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 0 16px 32px rgba(79, 70, 229, 0.12) !important;
   }
 
   .icon-box {
     width: 44px; height: 44px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.1rem;
+    transition: transform .3s ease;
+  }
+  .stat-card:hover .icon-box {
+    transform: scale(1.1) rotate(-6deg);
+  }
+  .icon-pulse {
+    animation: pulseRing 2.5s ease-out infinite;
+    border-radius: 50%;
   }
 
-  /* ── Quick action cards ── */
-  .action-card { transition: transform .25s ease, box-shadow .25s ease; cursor: pointer; }
+  /* ═══════════ COUNTERS ═══════════ */
+  .counter {
+    font-variant-numeric: tabular-nums;
+    transition: transform .25s ease, color .25s ease;
+  }
+  /* NEW: subtle pop on hover of parent card */
+  .stat-card:hover .counter {
+    transform: scale(1.06);
+  }
+
+  /* ═══════════ ACTION CARDS ═══════════ */
+  .action-card {
+    transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow .3s ease;
+    cursor: pointer;
+  }
   .action-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 24px rgba(0,0,0,.08) !important;
+    transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(79, 70, 229, 0.14) !important;
   }
   .action-icon {
     width: 46px; height: 46px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 1.2rem; flex-shrink: 0;
+    transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .action-card:hover .action-icon-hover {
+    transform: scale(1.12) rotate(8deg);
   }
 
-  /* ── Notice avatar ── */
+  /* ═══════════ ROWS ═══════════ */
+  tbody tr {
+    transition: background-color .2s ease, transform .2s ease,
+                box-shadow .2s ease;
+  }
+  tbody tr:hover {
+    background-color: #f8fafc;
+    transform: translateX(2px);
+    box-shadow: inset 3px 0 0 0 #6366f1;
+  }
+
+  /* ═══════════ BADGES ═══════════ */
+  .badge-urgent { position: relative; }
+  .badge-urgent::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    animation: pulseRing 2s ease-out infinite;
+    pointer-events: none;
+  }
+  /* NEW: badge pop on hover */
+  .badge-hover-pop {
+    transition: transform .2s ease, background-color .2s ease;
+  }
+  .badge-hover-pop:hover {
+    transform: scale(1.08);
+    background-color: #eef2ff !important;
+  }
+
+  /* ═══════════ BUTTONS ═══════════ */
+  .btn-pulse {
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .btn-pulse:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+  }
+  .btn-glow { transition: all .25s ease; }
+  .btn-glow:hover {
+    background-color: #fff;
+    color: #3730a3;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+  }
+  .btn-hover-lift {
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+  }
+  .btn-icon-hover { transition: all .2s ease; }
+  .btn-icon-hover:hover {
+    transform: scale(1.15) rotate(-4deg);
+  }
+
+  /* ═══════════ ZAP ICON ═══════════ */
+  .icon-zap {
+    display: inline-block;
+    animation: zapWiggle 2.5s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  /* NEW: gentle float for empty state icon */
+  .icon-float-gentle {
+    animation: iconFloatGentle 3s ease-in-out infinite;
+  }
+
+  /* ═══════════ NOTICE AVATAR ═══════════ */
   .notice-avatar {
     width: 42px; height: 42px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  tbody tr:hover .notice-avatar {
+    transform: scale(1.1) rotate(-4deg);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   }
 
-  /* ── Date inputs ── */
+  /* ═══════════ DATE INPUTS ═══════════ */
   input[type="date"].form-control-sm {
     font-size: .8125rem;
     padding: .35rem .75rem;
   }
 
-  /* ── Pagination (self-contained, no external file needed) ── */
+  /* NEW: input focus lift */
+  .input-focus-lift {
+    transition: transform .2s ease, box-shadow .2s ease,
+                border-color .2s ease;
+  }
+  .input-focus-lift:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(99, 102, 241, 0.15);
+    border-color: #6366f1;
+  }
+
+  /* ═══════════ PAGINATION ═══════════ */
   .pg-wrapper {
     display: flex; flex-wrap: wrap; align-items: center;
     justify-content: space-between; gap: 1rem; padding: .5rem 0;
@@ -564,6 +760,7 @@
   .pg-icon { width: 16px; height: 16px; flex-shrink: 0; }
   .pg-label { font-size: .8125rem; }
 
+  /* ═══════════ RESPONSIVE ═══════════ */
   @media (max-width: 575.98px) {
     .pg-wrapper { flex-direction: column; align-items: stretch; }
     .pg-info    { justify-content: space-between; width: 100%; }
@@ -575,13 +772,38 @@
       display: none;
     }
   }
+
+  /* ═══════════ REDUCED MOTION ═══════════ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    .reveal,
+    .reveal-row {
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .stat-card:hover,
+    .action-card:hover,
+    .btn-hover-lift:hover,
+    .btn-icon-hover:hover,
+    .badge-hover-pop:hover,
+    .input-focus-lift:focus {
+      transform: none !important;
+    }
+  }
 </style>
 @endpush
 
 {{-- ============ SCRIPTS ============ --}}
 @push('scripts')
 <script>
-  /* Delete confirmation */
+  /* ═══════ Add .no-js fallback (removes if JS runs) ═══════ */
+  document.documentElement.classList.remove('no-js');
+
+  /* ═══════ Delete confirmation ═══════ */
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.delete-form').forEach(function (form) {
       form.addEventListener('submit', function (e) {
@@ -592,11 +814,103 @@
     });
   });
 
-  /* Auto-submit per-page selector (works for any number of instances) */
+  /* ═══════ Auto-submit per-page selector ═══════ */
   document.addEventListener('change', function (e) {
     if (e.target.matches('[data-perpage-select]')) {
       e.target.closest('[data-perpage-form]').submit();
     }
   });
+
+  /* ═══════ Counter animation (only when visible) ═══════ */
+  (function () {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function animateCounter(el) {
+      if (el.dataset.animated === 'true') return;
+      el.dataset.animated = 'true';
+
+      const target = parseInt(el.dataset.target, 10) || 0;
+
+      if (prefersReduced || target === 0) {
+        el.textContent = target.toLocaleString();
+        return;
+      }
+
+      const duration = 1200;
+      const start = performance.now();
+
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.round(target * eased).toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.counter').forEach(animateCounter);
+      return;
+    }
+
+    const counterObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          animateCounter(entry.target);
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+
+    document.querySelectorAll('.counter').forEach(function (el) {
+      counterObserver.observe(el);
+    });
+  })();
+
+  /* ═══════ Scroll Reveal (with stagger via data-delay) ═══════ */
+  (function () {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const elements = document.querySelectorAll('.reveal');
+
+    if (prefersReduced || !('IntersectionObserver' in window)) {
+      elements.forEach(function (el) { el.classList.add('is-visible'); });
+      document.querySelectorAll('tbody').forEach(function (tb) { tb.classList.add('is-visible'); });
+      return;
+    }
+
+    const revealObserver = new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0;
+          entry.target.style.setProperty('--reveal-delay', delay + 'ms');
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -60px 0px'
+    });
+
+    elements.forEach(function (el) { revealObserver.observe(el); });
+
+    /* ═══════ Table rows: reveal when their tbody enters viewport ═══════ */
+    document.querySelectorAll('.card tbody').forEach(function (tbody) {
+      if (!tbody.querySelector('tr')) return;
+
+      const rowObserver = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05 });
+
+      rowObserver.observe(tbody);
+    });
+  })();
 </script>
 @endpush

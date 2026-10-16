@@ -22,68 +22,110 @@
     </div>
   </div>
 
-  {{-- ══════════ STATS ══════════ --}}
-  <div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
+
+{{-- Stats --}}
+<div class="row g-3 mb-4">
+
+  {{-- Total Notices → all notices --}}
+  <div class="col-6 col-md-3 reveal" data-delay="0">
+    <a href="{{ route('home') }}" class="text-decoration-none stat-link">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="text-muted small text-uppercase fw-semibold">Total Notices</div>
-            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+            <div class="text-muted small text-uppercase">Total Notices</div>
+            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center icon-box-hover"
                  style="width:36px;height:36px;">
               <i class="bi bi-megaphone"></i>
             </div>
           </div>
-          <h3 class="fw-bold mb-0 text-primary">{{ $stats['total'] }}</h3>
+          <h3 class="fw-bold mb-0 text-primary counter" data-target="{{ $stats['total'] }}">0</h3>
+          <small class="text-muted small-link">
+            View all <i class="bi bi-arrow-right ms-1"></i>
+          </small>
         </div>
       </div>
-    </div>
+    </a>
+  </div>
 
-    <div class="col-6 col-md-3">
+  {{-- This Week → filtered by date --}}
+  <div class="col-6 col-md-3 reveal" data-delay="100">
+    <a href="{{ route('home', ['date_from' => now()->startOfWeek()->toDateString(), 'date_to' => now()->toDateString()]) }}"
+       class="text-decoration-none stat-link">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="text-muted small text-uppercase fw-semibold">This Week</div>
-            <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center"
+            <div class="text-muted small text-uppercase">This Week</div>
+            <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center icon-box-hover"
                  style="width:36px;height:36px;">
               <i class="bi bi-calendar-week"></i>
             </div>
           </div>
-          <h3 class="fw-bold mb-0 text-success">{{ $stats['this_week'] }}</h3>
+          <h3 class="fw-bold mb-0 text-success counter" data-target="{{ $stats['this_week'] }}">0</h3>
+          <small class="text-muted small-link">
+            View week <i class="bi bi-arrow-right ms-1"></i>
+          </small>
         </div>
       </div>
-    </div>
-
-    <div class="col-6 col-md-3">
-      <div class="card border-0 shadow-sm h-100 stat-card">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="text-muted small text-uppercase fw-semibold">Urgent</div>
-            <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
-                 style="width:36px;height:36px;">
-              <i class="bi bi-exclamation-triangle"></i>
-            </div>
-          </div>
-          <h3 class="fw-bold mb-0 text-danger">{{ $stats['urgent'] }}</h3>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-6 col-md-3">
-      <div class="card border-0 shadow-sm h-100 stat-card">
-        <div class="card-body">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <div class="text-muted small text-uppercase fw-semibold">Must Read</div>
-            <div class="rounded-circle bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center"
-                 style="width:36px;height:36px;">
-              <i class="bi bi-star-fill"></i>
-            </div>
-          </div>
-          <h3 class="fw-bold mb-0 text-warning-emphasis">{{ $stats['must_read'] }}</h3>
-        </div>
-      </div>
-    </div>
+    </a>
   </div>
+{{-- ⚠️ URGENT → filtered by priority --}}
+<div class="col-6 col-md-3 reveal" data-delay="200">
+  <a href="{{ route('home', ['priority' => 'Urgent']) }}" class="text-decoration-none stat-link">
+    <div class="card border-0 shadow-sm h-100 stat-card position-relative">
+      <div class="card-body">
+
+        {{-- Centered date badge --}}
+        <div class="text-center mb-2">
+          <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 fw-semibold"
+                style="font-size:.7rem;">
+            <i class="bi bi-calendar-event me-1"></i>{{ now()->format('d M Y') }}
+          </span>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="text-muted small text-uppercase">Urgent</div>
+          <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center icon-box-hover icon-pulse-soft"
+               style="width:36px;height:36px;">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+        </div>
+
+        <h3 class="fw-bold mb-0 text-danger counter text-center"
+            data-target="{{ $stats['urgent'] }}">0</h3>
+
+        <div class="text-center">
+          <small class="text-muted small-link">
+            View urgent <i class="bi bi-arrow-right ms-1"></i>
+          </small>
+        </div>
+
+      </div>
+    </div>
+  </a>
+</div>
+
+  {{-- Must Read → filtered by category --}}
+  <div class="col-6 col-md-3 reveal" data-delay="300">
+    <a href="{{ route('home', ['category' => 'must_read']) }}" class="text-decoration-none stat-link">
+      <div class="card border-0 shadow-sm h-100 stat-card">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="text-muted small text-uppercase">Must Read</div>
+            <div class="rounded-circle bg-warning-subtle text-warning-emphasis d-flex align-items-center justify-content-center icon-box-hover"
+                 style="width:36px;height:36px;">
+              <i class="bi bi-star-fill icon-twinkle"></i>
+            </div>
+          </div>
+          <h3 class="fw-bold mb-0 text-warning-emphasis counter" data-target="{{ $stats['must_read'] }}">0</h3>
+          <small class="text-muted small-link">
+            View must-read <i class="bi bi-arrow-right ms-1"></i>
+          </small>
+        </div>
+      </div>
+    </a>
+  </div>
+
+</div>
 
   <div class="row g-4">
 
@@ -156,8 +198,7 @@
                 <small class="text-muted">{{ $u->created_at->diffForHumans() }}</small>
               </div>
             @endforeach
-            <a href="{{ route('dashboard', ['category' => 'urgent']) }}"
-               class="btn btn-sm btn-outline-danger w-100 mt-2 rounded-pill">
+            <a href="{{ route('home', ['priority' => 'Urgent']) }}" class="text-decoration-none stat-link">
               View All Urgent
             </a>
           </div>
@@ -455,6 +496,16 @@
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     border-color: transparent; font-weight: 600;
   }
+
+  /* Centered date badge on urgent card */
+.stat-card .badge.bg-danger-subtle {
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.stat-card:hover .badge.bg-danger-subtle {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
 </style>
 @endpush
 

@@ -9,7 +9,26 @@ class NoticeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth','verified']);
+        $this->middleware(['auth', 'verified']);
+    }
+
+    /**
+     * Display a single notice.
+     */
+    public function show(Notice $notice)
+    {
+        // Only show active notices to students
+        abort_unless($notice->is_active, 404);
+
+        // Related notices (same category, excluding current)
+        $related = Notice::where('category', $notice->category)
+            ->where('id', '!=', $notice->id)
+            ->where('is_active', true)
+            ->latest('published_at')
+            ->take(5)
+            ->get();
+
+        return view('notices.show', compact('notice', 'related'));
     }
 
     /**

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +20,146 @@
     .hover-up{transition:.2s;}
     .hover-up:hover{transform:translateY(-3px);}
     .line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+
+    /* ═══════════ LAYOUT ANIMATIONS ═══════════ */
+    @keyframes navDrop {
+        from { opacity: 0; transform: translateY(-12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes alertSlide {
+        from { opacity: 0; transform: translateY(-10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes footerFade {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes dropdownIn {
+        from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes brandGlow {
+        0%, 100% { text-shadow: 0 0 0 rgba(255, 193, 7, 0); }
+        50%      { text-shadow: 0 0 12px rgba(255, 193, 7, 0.35); }
+    }
+
+    /* Navbar entrance */
+    .navbar { animation: navDrop 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; transition: box-shadow .25s ease; }
+    .navbar.scrolled { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important; }
+
+    /* Brand hover */
+    .navbar-brand { transition: transform .25s ease; }
+    .navbar-brand:hover { transform: translateY(-1px); }
+    .navbar-brand .bi-mortarboard-fill { transition: transform .35s cubic-bezier(0.16, 1, 0.3, 1); display: inline-block; }
+    .navbar-brand:hover .bi-mortarboard-fill { transform: rotate(-8deg) scale(1.1); }
+    .navbar-brand:hover span { animation: brandGlow 2s ease-in-out infinite; }
+
+    /* Nav links hover */
+    .navbar-nav .nav-link {
+        position: relative;
+        transition: color .2s ease, transform .2s ease;
+    }
+    .navbar-nav .nav-link::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        width: 0;
+        height: 2px;
+        background: #ffc107;
+        transition: width .25s ease, left .25s ease;
+    }
+    .navbar-nav .nav-link:hover {
+        transform: translateY(-1px);
+        color: #ffc107 !important;
+    }
+    .navbar-nav .nav-link:hover::after { width: 70%; left: 15%; }
+    .navbar-nav .nav-link.active::after { display: none; }
+
+    /* Dropdown animation */
+    .dropdown-menu {
+        animation: dropdownIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+        transform-origin: top right;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+    }
+    .dropdown-item {
+        transition: background-color .18s ease, transform .18s ease, padding-left .18s ease;
+    }
+    .dropdown-item:hover {
+        background-color: #f1f5ff;
+        transform: translateX(2px);
+        padding-left: 1.4rem;
+    }
+    .dropdown-item.text-danger:hover {
+        background-color: #fef2f2;
+    }
+
+    /* Profile pill hover */
+    .navbar .dropdown-toggle.rounded-pill {
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .navbar .dropdown-toggle.rounded-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    /* Alerts slide-in */
+    .alert { animation: alertSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+    /* Buttons */
+    .btn { transition: transform .2s ease, box-shadow .2s ease; }
+    .btn-warning:hover,
+    .btn-primary:hover,
+    .btn-success:hover,
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Admin login button subtle pulse */
+    .btn-warning.btn-sm { position: relative; }
+    .btn-warning.btn-sm:hover { animation: none; }
+
+    /* Footer */
+    footer { animation: footerFade 0.6s ease-out both; animation-play-state: paused; }
+    footer.is-visible { animation-play-state: running; }
+
+    /* Scroll reveal utilities for child pages */
+    .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        transition-delay: calc(var(--reveal-delay, 0ms));
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+    .reveal-row {
+        opacity: 0;
+        transform: translateX(-12px);
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        transition-delay: var(--row-delay, 0s);
+    }
+    tbody.is-visible .reveal-row { opacity: 1; transform: translateX(0); }
+
+    .no-js .reveal,
+    .no-js .reveal-row { opacity: 1; transform: none; }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.001ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.001ms !important;
+        }
+        .navbar-nav .nav-link:hover,
+        .dropdown-item:hover,
+        .btn:hover,
+        .navbar-brand:hover {
+            transform: none !important;
+        }
+        .reveal, .reveal-row { opacity: 1 !important; transform: none !important; }
+    }
 </style>
 @stack('styles')
 </head>
@@ -187,6 +327,93 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  /* ═══════════ Remove no-js (enables reveal) ═══════════ */
+  document.documentElement.classList.remove('no-js');
+
+  /* ═══════════ Navbar: shadow on scroll ═══════════ */
+  (function () {
+    const nav = document.querySelector('.navbar.sticky-top');
+    if (!nav) return;
+
+    function updateShadow() {
+      if (window.scrollY > 10) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    }
+
+    window.addEventListener('scroll', updateShadow, { passive: true });
+    updateShadow();
+  })();
+
+  /* ═══════════ Footer: reveal on scroll ═══════════ */
+  (function () {
+    const footer = document.querySelector('footer');
+    if (!footer) return;
+
+    if (!('IntersectionObserver' in window)) {
+      footer.classList.add('is-visible');
+      return;
+    }
+
+    const footerObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          footerObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    footerObserver.observe(footer);
+  })();
+
+  /* ═══════════ Global scroll reveal (for any child page) ═══════════ */
+  (function () {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const elements = document.querySelectorAll('.reveal');
+
+    if (prefersReduced || !('IntersectionObserver' in window)) {
+      elements.forEach(function (el) { el.classList.add('is-visible'); });
+      document.querySelectorAll('tbody').forEach(function (tb) { tb.classList.add('is-visible'); });
+      return;
+    }
+
+    const revealObserver = new IntersectionObserver(function (entries, obs) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          const delay = entry.target.dataset.delay || 0;
+          entry.target.style.setProperty('--reveal-delay', delay + 'ms');
+          entry.target.classList.add('is-visible');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -60px 0px'
+    });
+
+    elements.forEach(function (el) { revealObserver.observe(el); });
+
+    /* Table rows: reveal when their tbody enters viewport */
+    document.querySelectorAll('.card tbody').forEach(function (tbody) {
+      if (!tbody.querySelector('tr')) return;
+
+      const rowObserver = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05 });
+
+      rowObserver.observe(tbody);
+    });
+  })();
+</script>
+
 @stack('scripts')
 </body>
 </html>
