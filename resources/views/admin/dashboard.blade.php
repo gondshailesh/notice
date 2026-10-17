@@ -3,6 +3,9 @@
 
 @section('content')
 
+{{-- ⚡ Flag JS as ready ASAP (fixes reveal fallback bug) --}}
+<script>document.documentElement.classList.add('js-ready');</script>
+
 {{-- ============ HERO ============ --}}
 <div class="container-fluid px-lg-5 pt-4">
   <div class="card border-0 shadow-sm text-white position-relative overflow-hidden hero-animated"
@@ -82,37 +85,39 @@
       </div>
     </div>
 
+    {{-- ✅ Urgent card — red removed, now amber (warning) --}}
     <div class="col-6 col-lg-3 reveal" data-delay="200">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-box bg-danger-subtle text-danger icon-pulse">
+            <div class="icon-box bg-warning-subtle text-warning-emphasis icon-pulse">
               <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
             </div>
-            <span class="badge bg-danger-subtle text-danger rounded-pill small">
+            <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill small">
               <i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Active
             </span>
           </div>
           <div class="text-muted small text-uppercase fw-semibold mb-1">Urgent</div>
-          <h2 class="fw-bold mb-0 text-danger counter"
+          <h2 class="fw-bold mb-0 text-warning-emphasis counter"
               data-target="{{ $stats['urgent'] ?? 0 }}">0</h2>
         </div>
       </div>
     </div>
 
+    {{-- This Week — switched to info so it doesn't clash with Urgent --}}
     <div class="col-6 col-lg-3 reveal" data-delay="300">
       <div class="card border-0 shadow-sm h-100 stat-card">
         <div class="card-body p-4">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <div class="icon-box bg-warning-subtle text-warning-emphasis">
+            <div class="icon-box bg-info-subtle text-info-emphasis">
               <i class="bi bi-calendar-week-fill" aria-hidden="true"></i>
             </div>
-            <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill small">
+            <span class="badge bg-info-subtle text-info-emphasis rounded-pill small">
               <i class="bi bi-clock-history me-1" aria-hidden="true"></i>7 days
             </span>
           </div>
           <div class="text-muted small text-uppercase fw-semibold mb-1">This Week</div>
-          <h2 class="fw-bold mb-0 text-warning-emphasis counter"
+          <h2 class="fw-bold mb-0 text-info-emphasis counter"
               data-target="{{ $stats['this_week'] ?? 0 }}">0</h2>
         </div>
       </div>
@@ -255,8 +260,8 @@
           </div>
         </div>
 
-        {{-- ROW 2: DATE RANGE --}}
-        <div class="row g-2 align-items-center">
+        {{-- ✅ ROW 2: DATE RANGE — now centered in the card --}}
+        <div class="row g-2 align-items-center justify-content-center text-center">
           <div class="col-auto">
             <span class="small text-muted fw-semibold">
               <i class="bi bi-calendar3 me-1 text-primary" aria-hidden="true"></i>Date:
@@ -284,7 +289,7 @@
           </div>
 
           <div class="col-md-5">
-            <div class="d-flex flex-wrap gap-1">
+            <div class="d-flex flex-wrap gap-1 justify-content-center">
               <a href="{{ request()->fullUrlWithQuery(['date_from' => now()->toDateString(), 'date_to' => now()->toDateString(), 'page' => null]) }}"
                  class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2 btn-hover-lift" style="font-size:.72rem;">
                 Today
@@ -314,7 +319,7 @@
         </div>
 
         @if(request()->filled('date_from') || request()->filled('date_to'))
-          <div class="mt-2 small text-muted animate-fade-in">
+          <div class="mt-2 small text-muted animate-fade-in text-center">
             <i class="bi bi-info-circle me-1"></i>
             Showing notices
             @if(request()->filled('date_from'))
@@ -491,17 +496,23 @@
     0%, 100% { transform: translateY(0) scale(1); }
     50%      { transform: translateY(-20px) scale(1.05); }
   }
+  /* red pulse kept for the urgent TABLE badge only */
   @keyframes pulseRing {
     0%   { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); }
     70%  { box-shadow: 0 0 0 12px rgba(220, 53, 69, 0); }
     100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+  }
+  /* ✅ new amber pulse for the Urgent STAT card */
+  @keyframes pulseRingAmber {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.6); }
+    70%  { box-shadow: 0 0 0 12px rgba(255, 193, 7, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
   }
   @keyframes zapWiggle {
     0%, 100% { transform: rotate(0deg); }
     25%      { transform: rotate(-12deg); }
     75%      { transform: rotate(12deg); }
   }
-  /* ═══════════ NEW: Added keyframes ═══════════ */
   @keyframes iconFloatGentle {
     0%, 100% { transform: translateY(0); }
     50%      { transform: translateY(-6px); }
@@ -515,37 +526,42 @@
   .hero-orb      { animation: orbFloat 6s ease-in-out infinite; }
   .animate-rotate-slow { animation: rotateSlow 60s linear infinite; }
 
-  /* ═══════════ ⚡ SCROLL REVEAL ═══════════ */
+  /* ═══════════ ⚡ SCROLL REVEAL (FIXED) ═══════════
+     .reveal is VISIBLE by default so it works without JS.
+     Only when JS has flagged itself as ready (.js-ready on <html>)
+     do we hide them for the entrance animation.
+  ─────────────────────────────────────────────── */
   .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .js-ready .reveal {
     opacity: 0;
     transform: translateY(28px);
     transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
                 transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: calc(var(--reveal-delay, 0ms));
   }
-  .reveal.is-visible {
+  .js-ready .reveal.is-visible {
     opacity: 1;
     transform: translateY(0);
   }
 
   /* Rows reveal (staggered from within the table) */
   .reveal-row {
+    opacity: 1;
+    transform: none;
+  }
+  .js-ready .reveal-row {
     opacity: 0;
     transform: translateX(-12px);
     transition: opacity 0.5s ease-out,
                 transform 0.5s ease-out;
     transition-delay: var(--row-delay, 0s);
   }
-  tbody.is-visible .reveal-row {
+  .js-ready tbody.is-visible .reveal-row {
     opacity: 1;
     transform: translateX(0);
-  }
-
-  /* Fallback if JS disabled: show everything */
-  .no-js .reveal,
-  .no-js .reveal-row {
-    opacity: 1;
-    transform: none;
   }
 
   /* ═══════════ STAT CARDS ═══════════ */
@@ -567,8 +583,9 @@
   .stat-card:hover .icon-box {
     transform: scale(1.1) rotate(-6deg);
   }
+  /* ✅ amber pulse (was red) */
   .icon-pulse {
-    animation: pulseRing 2.5s ease-out infinite;
+    animation: pulseRingAmber 2.5s ease-out infinite;
     border-radius: 50%;
   }
 
@@ -577,7 +594,6 @@
     font-variant-numeric: tabular-nums;
     transition: transform .25s ease, color .25s ease;
   }
-  /* NEW: subtle pop on hover of parent card */
   .stat-card:hover .counter {
     transform: scale(1.06);
   }
@@ -623,7 +639,6 @@
     animation: pulseRing 2s ease-out infinite;
     pointer-events: none;
   }
-  /* NEW: badge pop on hover */
   .badge-hover-pop {
     transition: transform .2s ease, background-color .2s ease;
   }
@@ -665,7 +680,6 @@
     transform-origin: center;
   }
 
-  /* NEW: gentle float for empty state icon */
   .icon-float-gentle {
     animation: iconFloatGentle 3s ease-in-out infinite;
   }
@@ -688,7 +702,6 @@
     padding: .35rem .75rem;
   }
 
-  /* NEW: input focus lift */
   .input-focus-lift {
     transition: transform .2s ease, box-shadow .2s ease,
                 border-color .2s ease;
@@ -800,9 +813,6 @@
 {{-- ============ SCRIPTS ============ --}}
 @push('scripts')
 <script>
-  /* ═══════ Add .no-js fallback (removes if JS runs) ═══════ */
-  document.documentElement.classList.remove('no-js');
-
   /* ═══════ Delete confirmation ═══════ */
   document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.delete-form').forEach(function (form) {

@@ -49,7 +49,7 @@ class NoticeController extends Controller
             $query->whereDate('published_at', '<=', $request->date_to);
         }
 
-        $notices = $query->paginate($perPage)->withQueryString();
+        $notices = $query->paginate(10)->withQueryString();
 
         $stats = [
             'total_notices' => Notice::count(),
