@@ -13,8 +13,19 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 |--------------------------------------------------------------------------
 | Public
 |--------------------------------------------------------------------------
+| Guests see the welcome page. Logged-in users are redirected away:
+|   - Admin (role = 1) → admin.dashboard
+|   - Student (role = 0) → home
 */
-Route::get('/', fn() => view('welcome'))->name('welcome');
+Route::get('/', function () {
+    if (Auth::check()) {
+        return Auth::user()->role === 1
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('home');
+    }
+
+    return view('welcome');
+})->name('welcome');
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +53,7 @@ Route::middleware(['auth','verified'])->group(function () {
 
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-    // ✅ NEW: View notice detail page
+    // ✅ View notice detail page
     Route::get('/notices/{notice}', [NoticeController::class, 'show'])
         ->name('notices.show');
 
@@ -58,10 +69,10 @@ Route::middleware(['auth','verified'])->group(function () {
 Route::middleware(['auth','verified','student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])
         ->name('dashboard');
-            // ═══ NEW: Update profile ═══
+
+    // ═══ Update profile ═══
     Route::put('/profile', [StudentDashboardController::class, 'updateProfile'])
         ->name('student.profile.update');
-
 });
 
 /*

@@ -1,121 +1,128 @@
-@if ($paginator->hasPages())
-  <div class="pg-wrapper">
+@if ($paginator->hasPages() || $paginator->total() > 0)
 
-    {{-- Left side: "Showing X–Y of Z" + per-page selector --}}
+@php
+    /* Pick whichever per-page session key the current page uses */
+    $currentPerPage = (int) (
+        session('home_per_page')
+        ?? session('admin_per_page')
+        ?? session('student_per_page')
+        ?? 10
+    );
+    if (! in_array($currentPerPage, [10, 25, 50, 100], true)) {
+        $currentPerPage = 10;
+    }
+@endphp
+
+<div class="pg-wrapper">
+
+    {{-- ══════════ LEFT: INFO + PER-PAGE ══════════ --}}
     <div class="pg-info">
-      <p class="pg-info__text mb-0">
-        Showing
-        <strong>{{ $paginator->firstItem() }}</strong>
-        to
-        <strong>{{ $paginator->lastItem() }}</strong>
-        of
-        <strong>{{ $paginator->total() }}</strong>
-        results
-      </p>
 
-      <form method="GET" class="pg-perpage" data-perpage-form>
-        {{-- Preserve ALL current filters so changing per-page keeps them --}}
-        @foreach (request()->except(['per_page', 'page']) as $key => $value)
-          @if (is_scalar($value))
-            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-          @endif
-        @endforeach
+        <span class="pg-info__text">
+            Showing
+            <strong>{{ $paginator->firstItem() ?? 0 }}</strong>–<strong>{{ $paginator->lastItem() ?? 0 }}</strong>
+            of <strong>{{ $paginator->total() }}</strong>
+        </span>
 
-        <label for="perPage" class="pg-perpage__label">Per page:</label>
-        <select name="per_page"
-                id="perPage"
-                class="pg-perpage__select"
-                data-perpage-select
-                aria-label="Items per page">
-          @foreach ([10, 25, 50, 100] as $size)
-            <option value="{{ $size }}"
-              @selected((int) session('admin_per_page', 10) === $size)>
-              {{ $size }}
-            </option>
-          @endforeach
-        </select>
-      </form>
+        <form method="GET" class="pg-perpage" data-perpage-form>
+            {{-- Preserve all other query params (search, category, dates, etc.) --}}
+            @foreach(request()->except(['per_page', 'page']) as $key => $value)
+                @if(is_scalar($value) && $value !== '')
+                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                @endif
+            @endforeach
+
+            <label class="pg-perpage__label">Rows</label>
+            <select name="per_page" class="pg-perpage__select" data-perpage-select
+                    aria-label="Rows per page">
+                @foreach ([10, 25, 50, 100] as $n)
+                    <option value="{{ $n }}" @selected($currentPerPage === $n)>
+                        {{ $n }}
+                    </option>
+                @endforeach
+            </select>
+        </form>
     </div>
 
-    {{-- Right side: numbered pagination --}}
-    <nav class="pg-nav" role="navigation" aria-label="Pagination Navigation">
-      <ul class="pg-list">
+    {{-- ══════════ RIGHT: PAGE LINKS ══════════ --}}
+    @if ($paginator->hasPages())
+    <nav class="pg-nav" aria-label="Pagination Navigation">
+        <ul class="pg-list">
 
-        {{-- Previous --}}
-        @if ($paginator->onFirstPage())
-          <li class="pg-item is-disabled" aria-disabled="true">
-            <span class="pg-link" aria-hidden="true">
-              <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-              <span class="pg-label">Prev</span>
-            </span>
-          </li>
-        @else
-          <li class="pg-item">
-            {{-- ✅ $paginator->previousPageUrl() already respects withQueryString() --}}
-            <a href="{{ $paginator->previousPageUrl() }}"
-               class="pg-link"
-               rel="prev"
-               aria-label="Previous page">
-              <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-              <span class="pg-label">Prev</span>
-            </a>
-          </li>
-        @endif
-
-        {{-- Page numbers --}}
-        @foreach ($elements as $element)
-          {{-- "Three dots" separator --}}
-          @if (is_string($element))
-            <li class="pg-item is-dots" aria-disabled="true">
-              <span class="pg-link">{{ $element }}</span>
-            </li>
-          @endif
-
-          {{-- Array of links --}}
-          @if (is_array($element))
-            @foreach ($element as $page => $url)
-              @if ($page == $paginator->currentPage())
-                <li class="pg-item is-active" aria-current="page">
-                  <span class="pg-link">{{ $page }}</span>
+            {{-- Prev --}}
+            @if ($paginator->onFirstPage())
+                <li class="pg-item is-disabled">
+                    <span class="pg-link" aria-disabled="true">
+                        <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span class="pg-label">Prev</span>
+                    </span>
                 </li>
-              @else
+            @else
                 <li class="pg-item">
-                  {{-- ✅ THIS is the line that matters.
-                       $paginator->url($page) re-applies withQueryString(),
-                       so ?priority=Urgent survives page changes.
-                       Do NOT replace with '?page='.$page — that drops filters. --}}
-                  <a href="{{ $paginator->url($page) }}"
-                     class="pg-link"
-                     aria-label="Go to page {{ $page }}">
-                    {{ $page }}
-                  </a>
+                    <a href="{{ $paginator->previousPageUrl() }}" class="pg-link" rel="prev">
+                        <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span class="pg-label">Prev</span>
+                    </a>
                 </li>
-              @endif
+            @endif
+
+            {{-- Page numbers with ellipsis --}}
+            @foreach ($elements as $element)
+
+                @if (is_string($element))
+                    <li class="pg-item is-dots">
+                        <span class="pg-link">{{ $element }}</span>
+                    </li>
+                @endif
+
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $paginator->currentPage())
+                            <li class="pg-item is-active">
+                                <span class="pg-link" aria-current="page">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="pg-item">
+                                <a href="{{ $url }}" class="pg-link">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endforeach
+                @endif
+
             @endforeach
-          @endif
-        @endforeach
 
-        {{-- Next --}}
-        @if ($paginator->hasMorePages())
-          <li class="pg-item">
-            <a href="{{ $paginator->nextPageUrl() }}"
-               class="pg-link"
-               rel="next"
-               aria-label="Next page">
-              <span class="pg-label">Next</span>
-              <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </a>
-          </li>
-        @else
-          <li class="pg-item is-disabled" aria-disabled="true">
-            <span class="pg-link" aria-hidden="true">
-              <span class="pg-label">Next</span>
-              <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
-          </li>
-        @endif
+            {{-- Next --}}
+            @if ($paginator->hasMorePages())
+                <li class="pg-item">
+                    <a href="{{ $paginator->nextPageUrl() }}" class="pg-link" rel="next">
+                        <span class="pg-label">Next</span>
+                        <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </a>
+                </li>
+            @else
+                <li class="pg-item is-disabled">
+                    <span class="pg-link" aria-disabled="true">
+                        <span class="pg-label">Next</span>
+                        <svg class="pg-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </span>
+                </li>
+            @endif
 
-      </ul>
+        </ul>
     </nav>
-  </div>
+    @endif
+
+</div>
 @endif
