@@ -20,7 +20,7 @@
         </div>
         <div class="text-end">
           <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold badge-pop">
-            {{ $user->course }}
+            {{ $user->course ?? '—' }}
           </span>
         </div>
       </div>
@@ -50,7 +50,6 @@
               <i class="bi bi-megaphone"></i>
             </div>
           </div>
-          {{-- ✅ FIX: render actual value as fallback --}}
           <h3 class="fw-bold mb-0 text-primary counter" data-target="{{ $stats['total'] ?? 0 }}">{{ $stats['total'] ?? 0 }}</h3>
           <small class="text-muted small-link">
             View all <i class="bi bi-arrow-right ms-1"></i>
@@ -73,7 +72,6 @@
               <i class="bi bi-calendar-week"></i>
             </div>
           </div>
-          {{-- ✅ FIX: render actual value as fallback --}}
           <h3 class="fw-bold mb-0 text-success counter" data-target="{{ $stats['this_week'] ?? 0 }}">{{ $stats['this_week'] ?? 0 }}</h3>
           <small class="text-muted small-link">
             View week <i class="bi bi-arrow-right ms-1"></i>
@@ -95,7 +93,6 @@
               <i class="bi bi-exclamation-triangle"></i>
             </div>
           </div>
-          {{-- ✅ FIX: render actual value as fallback --}}
           <h3 class="fw-bold mb-0 text-danger counter" data-target="{{ $stats['urgent'] ?? 0 }}">{{ $stats['urgent'] ?? 0 }}</h3>
           <small class="text-muted small-link">
             View urgent <i class="bi bi-arrow-right ms-1"></i>
@@ -117,7 +114,6 @@
               <i class="bi bi-star-fill icon-twinkle"></i>
             </div>
           </div>
-          {{-- ✅ FIX: render actual value as fallback --}}
           <h3 class="fw-bold mb-0 text-warning-emphasis counter" data-target="{{ $stats['must_read'] ?? 0 }}">{{ $stats['must_read'] ?? 0 }}</h3>
           <small class="text-muted small-link">
             View must-read <i class="bi bi-arrow-right ms-1"></i>
@@ -171,17 +167,18 @@
 
           <div class="mb-3 info-row">
             <div class="text-muted small text-uppercase fw-semibold">Phone</div>
-            <div>+91 {{ $user->phone }}</div>
+            <div>{{ $user->phone ? '+91 ' . $user->phone : '—' }}</div>
           </div>
 
           <div class="mb-3 info-row">
             <div class="text-muted small text-uppercase fw-semibold">Course</div>
-            <div>{{ $user->course }}</div>
+            <div>{{ $user->course ?? '—' }}</div>
           </div>
 
+          {{-- ✅ FIX: null-safe DOB --}}
           <div class="mb-3 info-row">
             <div class="text-muted small text-uppercase fw-semibold">Date of Birth</div>
-            <div>{{ \Carbon\Carbon::parse($user->dob)->format('d M Y') }}</div>
+            <div>{{ $user->dob ? \Carbon\Carbon::parse($user->dob)->format('d M Y') : '—' }}</div>
           </div>
 
           <div class="mb-0 info-row">
@@ -192,7 +189,7 @@
       </div>
 
       {{-- Urgent notices --}}
-      @if($urgentNotices->count())
+      @if($urgentNotices && $urgentNotices->count())
         <div class="card border-0 shadow-sm border-start border-danger border-4 reveal" data-delay="100">
           <div class="card-body p-4">
             <h6 class="fw-bold text-danger mb-3">
@@ -498,78 +495,104 @@
       el.textContent = target.toLocaleString();
     }
 
+    /* ✅ FIX #2: Safety net — force-show any still-hidden rows if the
+       observer never fires (JS error, blocked script, etc.) */
+    function forceShowRows() {
+      document.querySelectorAll('.notice-row:not(.is-visible)').forEach(function (el) {
+        el.classList.add('is-visible');
+      });
+    }
+    window.addEventListener('load', function () {
+      setTimeout(forceShowRows, 1500);
+    });
+
     /* ─────── Early exit: no animation, show final values ─────── */
     if (prefersReduced || !('IntersectionObserver' in window)) {
       reveals.forEach(function (el) { el.classList.add('is-visible'); });
       rows.forEach(function (el)    { el.classList.add('is-visible'); });
-      counters.forEach(setCounterFinal);   // ✅ NEW: ensures counters show real values
+      counters.forEach(setCounterFinal);
       return;
     }
 
-    /* ─────── Reveal observer ─────── */
-    const revealObserver = new IntersectionObserver(function (entries, obs) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          const delay = entry.target.dataset.delay || 0;
-          entry.target.style.setProperty('--reveal-delay', delay + 'ms');
-          entry.target.classList.add('is-visible');
-          obs.unobserve(entry.target);
+    try {
+      /* ─────── Reveal observer ─────── */
+      const revealObserver = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            const delay = entry.target.dataset.delay || 0;
+            entry.target.style.setProperty('--reveal-delay', delay + 'ms');
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+      reveals.forEach(function (el) { revealObserver.observe(el); });
+
+      /* ─────── Row observer ─────── */
+      const rowObserver = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      rows.forEach(function (el) { rowObserver.observe(el); });
+
+      /* ─────── Counter animation ─────── */
+      function animateCounter(el) {
+        if (el.dataset.animated === 'true') return;
+        el.dataset.animated = 'true';
+
+        const target = parseInt(el.dataset.target, 10) || 0;
+        if (target === 0) { el.textContent = '0'; return; }
+
+        el.textContent = '0';
+        const duration = 1200;
+        const start = performance.now();
+
+        function step(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(target * eased).toLocaleString();
+          if (progress < 1) requestAnimationFrame(step);
         }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
-
-    reveals.forEach(function (el) { revealObserver.observe(el); });
-
-    /* ─────── Row observer ─────── */
-    const rowObserver = new IntersectionObserver(function (entries, obs) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          obs.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    rows.forEach(function (el) { rowObserver.observe(el); });
-
-    /* ─────── Counter animation ─────── */
-    function animateCounter(el) {
-      if (el.dataset.animated === 'true') return;
-      el.dataset.animated = 'true';
-
-      const target = parseInt(el.dataset.target, 10) || 0;
-      if (target === 0) { el.textContent = '0'; return; }
-
-      el.textContent = '0';           // ✅ explicit reset so it counts up from zero
-      const duration = 1200;
-      const start = performance.now();
-
-      function step(now) {
-        const progress = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        el.textContent = Math.round(target * eased).toLocaleString();
-        if (progress < 1) requestAnimationFrame(step);
+        requestAnimationFrame(step);
       }
-      requestAnimationFrame(step);
+
+      const counterObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            counterObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.4 });
+
+      counters.forEach(function (el) { counterObserver.observe(el); });
+
+    } catch (err) {
+      /* ✅ FIX #2 (backup): if observer setup throws, show everything */
+      console.warn('[dashboard] animation setup failed, showing content directly:', err);
+      document.documentElement.classList.remove('js-ready');
+      counters.forEach(setCounterFinal);
     }
-
-    const counterObserver = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          animateCounter(entry.target);
-          counterObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.4 });
-
-    counters.forEach(function (el) { counterObserver.observe(el); });
   })();
 
   /* ═══════ Reopen modal if validation errors exist ═══════ */
   @if($errors->any())
     document.addEventListener('DOMContentLoaded', function () {
       const modalEl = document.getElementById('editProfileModal');
-      if (modalEl) new bootstrap.Modal(modalEl).show();
+      /* ✅ FIX #3: defensive check — bootstrap may not be loaded */
+      if (modalEl && typeof window.bootstrap !== 'undefined' && window.bootstrap.Modal) {
+        try {
+          new bootstrap.Modal(modalEl).show();
+        } catch (e) {
+          console.warn('[dashboard] could not auto-open edit modal:', e);
+        }
+      }
     });
   @endif
 
